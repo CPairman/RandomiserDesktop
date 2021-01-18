@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/RandomiserWindows.iml" filepath="$PROJECT_DIR$/RandomiserWindows.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RandomiserDesktop.iml" filepath="$PROJECT_DIR$/RandomiserDesktop.iml" />
     </modules>
   </component>
 </project>
