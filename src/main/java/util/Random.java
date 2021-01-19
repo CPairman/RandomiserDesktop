@@ -15,7 +15,7 @@ public class Random {
      *
      * @param lowerBound The lower-bound number of the range (inclusive).
      * @param upperBound The upper-bound number of the range (inclusive).
-     * @param quantity The number of integers to generate
+     * @param quantity The quantity of integers to generate.
      *
      * @return An {@code Integer} {@code List} of non-unique pseudorandom numbers within the given range.
      */
@@ -37,7 +37,7 @@ public class Random {
      *
      * @param lowerBound The lower-bound number of the range (inclusive).
      * @param upperBound The upper-bound number of the range (inclusive).
-     * @param quantity The number of integers to generate
+     * @param quantity The quantity of integers to generate.
      *
      * @return An {@code Integer} {@code List} of unique pseudorandom numbers within the given range.
      */

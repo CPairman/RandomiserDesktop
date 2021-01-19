@@ -1,5 +1,6 @@
 package main.java.app;
 
+import main.java.util.Dice;
 import main.java.util.Format;
 import main.java.util.Random;
 
@@ -33,8 +34,17 @@ public class Randomiser {
     private JButton randNumGenerate;
     private JTextArea generatedNumsDisplay;
 
+    /* Dice roller tab components */
+    private JSpinner diceQuantity;
+    private JComboBox<Dice> diceType;
+    private JCheckBox rollForPercentage;
+    private JCheckBox keepPreviousRolls;
+    private JButton rollDiceButton;
+    private JButton clearDiceRolls;
+    private JTextArea diceRollDisplay;
+
     /**
-     * Returns the top level {@code JPanel} of the frame.
+     * Returns the top level JPanel of the frame.
      *
      * @return The top level {@code JPanel}.
      */
@@ -48,6 +58,7 @@ public class Randomiser {
      */
     private void createUIComponents() {
         createRandNumComponents();
+        createDiceRollComponents();
     }
 
     /**
@@ -79,6 +90,42 @@ public class Randomiser {
 
         randNumClear = new JButton();
         randNumClear.addActionListener(e -> clearGeneratedNumsDisplay());
+    }
+
+    /**
+     * Initialises components of the dice roll tab.
+     */
+    private void createDiceRollComponents(){
+        diceQuantity = new JSpinner(
+                new SpinnerNumberModel(DEFAULT_SPINNER_VALUE,
+                        RAND_NUM_MIN_QUANTITY,
+                        RAND_NUM_MAX_QUANTITY,
+                        DEFAULT_SPINNER_STEP));
+        diceQuantity.addChangeListener(e -> toggleRollForPercentage());
+
+        diceType = new JComboBox<>(new DefaultComboBoxModel<>(Dice.values()));
+        diceType.setSelectedItem(Dice.D6);
+        diceType.addActionListener(e -> toggleRollForPercentage());
+
+        rollDiceButton = new JButton();
+        rollDiceButton.addActionListener(e -> rollDice());
+
+        clearDiceRolls = new JButton();
+        clearDiceRolls.addActionListener(e -> clearDiceRollDisplay());
+    }
+
+    /**
+     * Sets the cursor to a 'wait' cursor while hovering over the main panel.
+     */
+    private void showWaitCursor(){
+        mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    }
+
+    /**
+     * Sets the cursor to the default while hovering over the main panel.
+     */
+    private void showDefaultCursor(){
+        mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -174,17 +221,17 @@ public class Randomiser {
     }
 
     /**
-     * Formats and displays a {@code List} of numbers on the random number generator tab.
+     * Formats and displays a list of integers on the random number generator tab.
      *
-     * @param nums The {@code List} of numbers to display.
+     * @param nums The {@code List} of integers to display.
      */
     private void displayGeneratedNums(List<Integer> nums){
-        String numsAsString = Format.formatIntegerListAsString(nums);
+        final String numsAsString = Format.integerListAsString(nums, "\n");
 
         if(randNumKeepPrevious.isSelected()){
-            generatedNumsDisplay.append(numsAsString + '\n');
+            generatedNumsDisplay.append(numsAsString + "\n\n");
         }else{
-            generatedNumsDisplay.setText(numsAsString + '\n');
+            generatedNumsDisplay.setText(numsAsString + "\n\n");
         }
     }
 
@@ -196,16 +243,126 @@ public class Randomiser {
     }
 
     /**
-     * Sets the cursor to a 'wait' cursor while hovering over the main panel.
+     * Toggles whether or not the "Roll for percentage" checkbox is enabled.
      */
-    private void showWaitCursor(){
-        mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    private void toggleRollForPercentage(){
+        final Dice type = (Dice) diceType.getSelectedItem();
+        final int quantity = (int) diceQuantity.getValue();
+
+        if((type == Dice.D10)
+                && (quantity == 2)){
+            rollForPercentage.setEnabled(true);
+        }else{
+            rollForPercentage.setSelected(false);
+            rollForPercentage.setEnabled(false);
+        }
     }
 
     /**
-     * Sets the cursor to the default while hovering over the main panel.
+     * Handles the 'Roll' button being clicked on the dice roll tab.
+     *
+     * This method essentially uses the same logic as the random number generator,
+     * where the upper-bound number is chosen by the user with {@code diceType}.
      */
-    private void showDefaultCursor(){
-        mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    private void rollDice(){
+        showWaitCursor();
+
+        if(rollForPercentage.isSelected()){
+            rollForPercentage();
+        }else{
+            regularRoll((int) diceQuantity.getValue());
+        }
+
+        diceRollDisplay.append("\n");
+
+        showDefaultCursor();
+    }
+
+    /**
+     * Simulates rolling two ten-sided dice with numbers 0-9.
+     *
+     * The results are displayed on the dice roll tab, along with the sum of the dice, and the
+     * results concatenated into a percentage.
+     */
+    private void rollForPercentage(){
+        final List<Integer> results = Random.getRandomIntegerList(0, 9, 2);
+        final int sum = sum(results);
+
+        final String percentage = Format.integerListAsPercentage(results);
+
+        displayDiceRoll(results, percentage, sum);
+    }
+
+    /**
+     * Simulates rolling a given number of dice, with the number of sides on each dice given
+     * by {@code diceType}.
+     *
+     * The results are displayed on the dice roll tab along with the sum of the dice.
+     *
+     * @param quantity The number of dice to roll.
+     */
+    private void regularRoll(int quantity){
+        final Dice dice = (Dice) diceType.getSelectedItem();
+        final int sides = dice.getSides();
+
+        final List<Integer> results = Random.getRandomIntegerList(1, sides, quantity);
+        final int sum = sum(results);
+
+        displayDiceRoll(results, sum);
+    }
+
+    /**
+     * Returns the sum of a list of integers.
+     *
+     * @param nums The {@code Integer} {@code List} to sum.
+     *
+     * @return The sum of all the elements in {@code nums}.
+     */
+    private int sum(List<Integer> nums){
+        int sum = 0;
+
+        for(int n : nums){
+            sum += n;
+        }
+
+        return sum;
+    }
+
+    /**
+     * Displays the results of a dice roll, along with the sum of the dice.
+     *
+     * @param dice The results of the dice roll.
+     * @param sum The sum of the dice.
+     */
+    private void displayDiceRoll(List<Integer> dice, int sum){
+        final String diceAsString = Format.integerListAsString(dice, ", ");
+
+        if(keepPreviousRolls.isSelected()){
+            diceRollDisplay.append(diceAsString + "\n");
+        }else{
+            diceRollDisplay.setText(diceAsString + "\n");
+        }
+
+        diceRollDisplay.append("Total: " + sum + "\n");
+    }
+
+
+    /**
+     * Displays the results of a dice roll, along with the sum of the dice, and the dice
+     * concatenated into a percentage.
+     *
+     * @param dice The results of the dice roll.
+     * @param sum The sum of the dice.
+     */
+    private void displayDiceRoll(List<Integer> dice, String percentage, int sum){
+        displayDiceRoll(dice, sum);
+        diceRollDisplay.append("Percentage: " + percentage + "\n");
+    }
+
+    /**
+     * Clears the display box for dice rolls.
+     */
+    private void clearDiceRollDisplay(){
+        diceRollDisplay.setText("");
     }
 }
