@@ -7,6 +7,7 @@ import main.java.util.Random;
 import javax.swing.*;
 import java.awt.*;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -22,17 +23,20 @@ public class Randomiser {
     /* Private constants declaration */
     private static final int RAND_NUM_MAXIMUM = 10_000_000;
     private static final int RAND_NUM_MINIMUM = -10_000_000;
-    private static final int RAND_NUM_MAX_QUANTITY = 100;
-    private static final int RAND_NUM_MIN_QUANTITY = 1;
+    private static final int MAX_QUANTITY = 100;
+    private static final int MIN_QUANTITY = 1;
     private static final int DEFAULT_SPINNER_VALUE = 1;
     private static final int DEFAULT_SPINNER_STEP = 1;
 
-    private static final String LIST_RANDOMISER_INSTRUCTION_TEXT = "Enter up to "
+    private static final String LIST_INPUT_INSTRUCTION_TEXT = "Enter up to "
             + NUMBER_FORMAT.format(MAX_LIST_ITEMS)
             + " items. Put each item on a new line:";
     private static final String RAND_NUM_QUANTITY_TOO_HIGH_MESSAGE = """
                                 There are not enough unique numbers in this range.
                                 All possible numbers will be generated.""";
+    private static final String RAND_ITEM_QUANTITY_TOO_HIGH_MESSAGE = """
+                                There are not enough items in the list.
+                                All items will be chosen.""";
 
     /* Declaration of form components */
     private JPanel mainPanel;
@@ -52,16 +56,26 @@ public class Randomiser {
     private JComboBox<Dice> diceType;
     private JCheckBox rollForPercentage;
     private JCheckBox keepPreviousRolls;
-    private JButton rollDiceButton;
-    private JButton clearDiceRolls;
     private JTextArea diceRollDisplay;
+    private JButton rollDiceButton;
+    private JButton diceRollClear;
 
     /* List randomiser tab components */
     private JLabel listRandomiserInstruction;
     private JTextArea randomiseListInput;
     private JTextArea randomiseListDisplay;
-    private JButton randomiseList;
-    private JButton clearListDisplay;
+    private JButton randomiseListButton;
+    private JButton randListClear;
+
+    /* Random item tab components */
+    private JSpinner randItemQuantity;
+    private JCheckBox randItemAllowRepeats;
+    private JCheckBox randItemKeepPrevious;
+    private JLabel randItemInstruction;
+    private JTextArea randItemInput;
+    private JButton randItemSelect;
+    private JTextArea randItemDisplay;
+    private JButton randItemClear;
 
     /**
      * Returns the top level JPanel of the frame.
@@ -80,6 +94,7 @@ public class Randomiser {
         createRandNumComponents();
         createDiceRollComponents();
         createListRandomiserComponents();
+        createRandomItemComponents();
     }
 
     /**
@@ -88,8 +103,7 @@ public class Randomiser {
     private void createRandNumComponents(){
         randNumQuantity = new JSpinner(
                 new SpinnerNumberModel(DEFAULT_SPINNER_VALUE,
-                        RAND_NUM_MIN_QUANTITY,
-                        RAND_NUM_MAX_QUANTITY,
+                        MIN_QUANTITY, MAX_QUANTITY,
                         DEFAULT_SPINNER_STEP));
 
         randNumLowerBound = new JSpinner(
@@ -119,8 +133,7 @@ public class Randomiser {
     private void createDiceRollComponents(){
         diceQuantity = new JSpinner(
                 new SpinnerNumberModel(DEFAULT_SPINNER_VALUE,
-                        RAND_NUM_MIN_QUANTITY,
-                        RAND_NUM_MAX_QUANTITY,
+                        MIN_QUANTITY, MAX_QUANTITY,
                         DEFAULT_SPINNER_STEP));
         diceQuantity.addChangeListener(e -> toggleRollForPercentage());
 
@@ -131,22 +144,39 @@ public class Randomiser {
         rollDiceButton = new JButton();
         rollDiceButton.addActionListener(e -> rollDice());
 
-        clearDiceRolls = new JButton();
-        clearDiceRolls.addActionListener(e -> clearDiceRollDisplay());
+        diceRollClear = new JButton();
+        diceRollClear.addActionListener(e -> clearDiceRollDisplay());
     }
 
     /**
      * Initialises components of the list randomiser tab.
      */
     private void createListRandomiserComponents(){
-        listRandomiserInstruction = new JLabel();
-        listRandomiserInstruction.setText(LIST_RANDOMISER_INSTRUCTION_TEXT);
+        listRandomiserInstruction = new JLabel(LIST_INPUT_INSTRUCTION_TEXT);
 
-        randomiseList = new JButton();
-        randomiseList.addActionListener(e -> randomiseList());
+        randomiseListButton = new JButton();
+        randomiseListButton.addActionListener(e -> randomiseList());
 
-        clearListDisplay = new JButton();
-        clearListDisplay.addActionListener(e -> clearRandomiseListDisplay());
+        randListClear = new JButton();
+        randListClear.addActionListener(e -> clearRandomiseListDisplay());
+    }
+
+    /**
+     * Initialises components of the random item tab.
+     */
+    private void createRandomItemComponents(){
+        randItemQuantity = new JSpinner(
+                new SpinnerNumberModel(DEFAULT_SPINNER_VALUE,
+                        MIN_QUANTITY, MAX_QUANTITY,
+                        DEFAULT_SPINNER_STEP));
+
+        randItemInstruction = new JLabel(LIST_INPUT_INSTRUCTION_TEXT);
+
+        randItemSelect = new JButton();
+        randItemSelect.addActionListener(e -> selectRandomItems());
+
+        randItemClear = new JButton();
+        randItemClear.addActionListener(e -> clearRandomItemDisplay());
     }
 
     /**
@@ -165,10 +195,10 @@ public class Randomiser {
 
     /**
      * Handles the 'Generate' button being clicked on the random number generator tab.
-     *
+     * <br><br>
      * If the checkbox to allow duplicate numbers is checked, a list of non-unique pseudorandom
      * numbers is generated within the range given by the user and displayed on the form.
-     *
+     * <br><br>
      * If the checkbox is not checked, the method will generate a list of unique pseudorandom
      * numbers, within the range given by the user, and display this on the form.
      */
@@ -195,11 +225,11 @@ public class Randomiser {
 
     /**
      * Returns the lower-bound value entered by the user on the random number generator tab.
-     *
+     * <br><br>
      * It's possible for the user to enter upper- and lower-bound values in the wrong order,
      * i.e entering a smaller number in {@code randNumUpperBound} and a larger number in
      * {@code randNumLowerBound}.
-     *
+     * <br>
      * This method accounts for that by returning the smallest number entered in either spinner.
      *
      * @return The lower-bound value entered by the user on the random number generator tab.
@@ -211,11 +241,11 @@ public class Randomiser {
 
     /**
      * Returns the upper-bound value entered by the user on the random number generator tab.
-     *
+     * <br><br>
      * It's possible for the user to enter upper- and lower-bound values in the wrong order,
      * i.e entering a smaller number in {@code randNumUpperBound} and a larger number in
      * {@code randNumLowerBound}.
-     *
+     * <br>
      * This method accounts for that by returning the largest number entered in either spinner.
      *
      * @return The upper-bound value entered by the user on the random number generator tab.
@@ -228,10 +258,10 @@ public class Randomiser {
     /**
      * Returns the quantity of numbers that the user has requested, only for use when the user
      * has requested UNIQUE numbers.
-     *
+     * <br><br>
      * As the numbers must be unique, it's possible for the user to request more numbers than
      * exist between {@code lowerBound} and {@code upperBound}.
-     *
+     * <br>
      * If this happens, the method will display a warning to the user, then return the maximum
      * quantity possible.
      *
@@ -264,10 +294,12 @@ public class Randomiser {
         final String numsAsString = Format.integerListAsString(nums, "\n");
 
         if(randNumKeepPrevious.isSelected()){
-            generatedNumsDisplay.append(numsAsString + "\n\n");
+            generatedNumsDisplay.append(numsAsString);
         }else{
-            generatedNumsDisplay.setText(numsAsString + "\n\n");
+            generatedNumsDisplay.setText(numsAsString);
         }
+
+        generatedNumsDisplay.append("\n\n");
     }
 
     /**
@@ -295,7 +327,7 @@ public class Randomiser {
 
     /**
      * Handles the 'Roll' button being clicked on the dice roll tab.
-     *
+     * <br><br>
      * This method essentially uses the same logic as the random number generator,
      * where the upper-bound number is chosen by the user with {@code diceType}.
      */
@@ -303,15 +335,14 @@ public class Randomiser {
         if(rollForPercentage.isSelected()){
             rollForPercentage();
         }else{
-            regularRoll((int) diceQuantity.getValue());
+            final int quantity = (int) diceQuantity.getValue();
+            regularRoll(quantity);
         }
-
-        diceRollDisplay.append("\n");
     }
 
     /**
      * Simulates rolling two ten-sided dice with numbers 0-9.
-     *
+     * <br><br>
      * The results are displayed on the dice roll tab, along with the sum of the dice, and the
      * results concatenated into a percentage.
      */
@@ -327,7 +358,7 @@ public class Randomiser {
     /**
      * Simulates rolling a given number of dice, with the number of sides on each dice given
      * by {@code diceType}.
-     *
+     * <br><br>
      * The results are displayed on the dice roll tab along with the sum of the dice.
      *
      * @param quantity The number of dice to roll.
@@ -375,6 +406,7 @@ public class Randomiser {
         }
 
         diceRollDisplay.append("Total: " + sum + "\n");
+        diceRollDisplay.append("\n");
     }
 
     /**
@@ -387,6 +419,7 @@ public class Randomiser {
     private void displayDiceRoll(List<Integer> dice, String percentage, int sum){
         displayDiceRoll(dice, sum);
         diceRollDisplay.append("Percentage: " + percentage + "\n");
+        diceRollDisplay.append("\n");
     }
 
     /**
@@ -398,7 +431,7 @@ public class Randomiser {
 
     /**
      * Handles the 'Randomise' button being clicked on the list randomiser tab.
-     *
+     * <br><br>
      * The user's input is converted to a list and shuffled.
      * The shuffled list is then converted back to a string and displayed.
      */
@@ -417,15 +450,15 @@ public class Randomiser {
      * @return {@code string} separated into a {@code List}.
      */
     private List<String> getShuffledList(String string){
-        final List<String> splitInput = Format.splitStringToList(string, MAX_LIST_ITEMS);
+        final List<String> inputList = Format.splitStringToList(string, MAX_LIST_ITEMS);
 
-        Collections.shuffle(splitInput);
+        Collections.shuffle(inputList);
 
-        return splitInput;
+        return inputList;
     }
 
     /**
-     * Displays a list on the list randomiser tab.
+     * Formats and displays a list on the list randomiser tab.
      *
      * @param list The {@code List} to display.
      */
@@ -440,5 +473,127 @@ public class Randomiser {
      */
     private void clearRandomiseListDisplay(){
         randomiseListDisplay.setText("");
+    }
+
+    /**
+     * Handles the 'Select' button being clicked on the random item tab.
+     * <br><br>
+     * The user's input is converted to a list, then the number of items specified by
+     * the user is selected and displayed.
+     */
+    private void selectRandomItems(){
+        final String input = randItemInput.getText();
+        final List<String> inputList = Format.splitStringToList(input, MAX_LIST_ITEMS);
+
+        final int quantity;
+        final List<String> selectedItems;
+
+        if(randItemAllowRepeats.isSelected()){
+            quantity = (int) randItemQuantity.getValue();
+            selectedItems = getRandomItems(inputList, quantity);
+        }else{
+            quantity = checkUniqueItemsQuantity(inputList.size());
+            selectedItems = getUniqueRandomItems(inputList, quantity);
+        }
+
+        displaySelectedItems(selectedItems);
+    }
+
+    /**
+     * Returns the quantity of items that the user has requested, only for use when the user
+     * has requested UNIQUE items.
+     * <br><br>
+     * As the items must be unique, it's possible for the user to request more items than exist
+     * in their input list.
+     * <br>
+     * If this happens, the method will display a warning to the user, then return the size
+     * of the list.
+     *
+     * @param listSize The size of the list.
+     *
+     * @return The quantity of items that the user has requested, or {@code listSize}.
+     */
+    private int checkUniqueItemsQuantity(int listSize){
+        final int quantity = (int) randItemQuantity.getValue();
+
+        if(quantity <= listSize){
+            return quantity;
+        }else{
+            JOptionPane.showMessageDialog(mainPanel,
+                    RAND_ITEM_QUANTITY_TOO_HIGH_MESSAGE,
+                    TITLE, JOptionPane.WARNING_MESSAGE);
+
+            return listSize;
+        }
+    }
+
+    /**
+     * Selects a number of non-unique, random items from a given list.
+     * <br><br>
+     * This method may return duplicate items.
+     *
+     * @param list The {@code List} to select items from.
+     * @param quantity The number of items to select.
+     *
+     * @return A {@code List} containing randomly selected, non-unique items from {@code list}.
+     */
+    private List<String> getRandomItems(List<String> list, int quantity){
+        final List<String> selectedItems = new ArrayList<>();
+
+        for(int i = 0; i < quantity; i++){
+            Collections.shuffle(list);
+
+            String item = list.get(0);
+            selectedItems.add(item);
+        }
+
+        return selectedItems;
+    }
+
+    /**
+     * Selects a number of unique, random items from a given list.
+     * <br><br>
+     * This method will not return duplicate items.
+     *
+     * @param list The {@code List} to select items from.
+     * @param quantity The number of items to select.
+     *
+     * @return A {@code List} containing randomly selected, unique items from {@code list}.
+     */
+    private List<String> getUniqueRandomItems(List<String> list, int quantity){
+        Collections.shuffle(list);
+
+        final List<String> selectedItems = new ArrayList<>();
+
+        for(int i = 0; i < quantity; i++){
+            String item = list.get(i);
+            selectedItems.add(item);
+        }
+
+        return selectedItems;
+    }
+
+    /**
+     * Formats and displays a list of items on the random item tab.
+     *
+     * @param items The selected items to display.
+     */
+    private void displaySelectedItems(List<String> items){
+        final String itemsAsString = Format.convertListToString(items, "\n");
+
+        if(randItemKeepPrevious.isSelected()){
+            randItemDisplay.append(itemsAsString);
+        }else{
+            randItemDisplay.setText(itemsAsString);
+        }
+
+        randItemDisplay.append("\n\n");
+    }
+
+    /**
+     * Clears the random item display box.
+     */
+    private void clearRandomItemDisplay(){
+        randItemDisplay.setText("");
     }
 }

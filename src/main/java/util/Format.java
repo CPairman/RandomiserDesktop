@@ -99,10 +99,10 @@ public class Format {
      * Concatenates a list of integers to a percentage.
      *
      * As an example, a list containing 5 and 6 becomes "56%".
-     * A list containing two zeros becomes "100%".
+     * The option can be selected to consider a list containing two zeros as "100%".
      *
      * @param nums The {@code Integer} {@code List} to concatenate.
-     * @param doubleZeroIsOneHundred
+     * @param doubleZeroIsOneHundred Whether two zeros should be considered "100%".
      *
      * @return A {@code String} representing the list as a percentage.
      */

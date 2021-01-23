@@ -6,7 +6,8 @@ import javax.swing.JOptionPane;
 
 /**
  * Provides a {@code RuntimeException} that displays an error message to the
- * user when they have entered more items than allowed in the list randomiser.
+ * user when they have entered more items than allowed in the list randomiser
+ * or random item tabs.
  */
 public class TooManyItemsException extends RuntimeException{
     private static final String MESSAGE = "Number of items may not exceed "
