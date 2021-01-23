@@ -6,9 +6,20 @@ import main.java.util.Random;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class Randomiser {
+    /* Public constants declaration */
+    public static final String TITLE = "Randomiser";
+    public static final int MAX_LIST_ITEMS = 10_000;
+
+    public static final Locale LOCALE = Locale.getDefault();
+    public static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(LOCALE);
+
+    /* Private constants declaration */
     private static final int RAND_NUM_MAXIMUM = 10_000_000;
     private static final int RAND_NUM_MINIMUM = -10_000_000;
     private static final int RAND_NUM_MAX_QUANTITY = 100;
@@ -16,7 +27,9 @@ public class Randomiser {
     private static final int DEFAULT_SPINNER_VALUE = 1;
     private static final int DEFAULT_SPINNER_STEP = 1;
 
-    private static final String TITLE = "Randomiser";
+    private static final String LIST_RANDOMISER_INSTRUCTION_TEXT = "Enter up to "
+            + NUMBER_FORMAT.format(MAX_LIST_ITEMS)
+            + " items. Put each item on a new line:";
     private static final String RAND_NUM_QUANTITY_TOO_HIGH_MESSAGE = """
                                 There are not enough unique numbers in this range.
                                 All possible numbers will be generated.""";
@@ -43,6 +56,13 @@ public class Randomiser {
     private JButton clearDiceRolls;
     private JTextArea diceRollDisplay;
 
+    /* List randomiser tab components */
+    private JLabel listRandomiserInstruction;
+    private JTextArea randomiseListInput;
+    private JTextArea randomiseListDisplay;
+    private JButton randomiseList;
+    private JButton clearListDisplay;
+
     /**
      * Returns the top level JPanel of the frame.
      *
@@ -59,6 +79,7 @@ public class Randomiser {
     private void createUIComponents() {
         createRandNumComponents();
         createDiceRollComponents();
+        createListRandomiserComponents();
     }
 
     /**
@@ -112,6 +133,20 @@ public class Randomiser {
 
         clearDiceRolls = new JButton();
         clearDiceRolls.addActionListener(e -> clearDiceRollDisplay());
+    }
+
+    /**
+     * Initialises components of the list randomiser tab.
+     */
+    private void createListRandomiserComponents(){
+        listRandomiserInstruction = new JLabel();
+        listRandomiserInstruction.setText(LIST_RANDOMISER_INSTRUCTION_TEXT);
+
+        randomiseList = new JButton();
+        randomiseList.addActionListener(e -> randomiseList());
+
+        clearListDisplay = new JButton();
+        clearListDisplay.addActionListener(e -> clearRandomiseListDisplay());
     }
 
     /**
@@ -265,8 +300,6 @@ public class Randomiser {
      * where the upper-bound number is chosen by the user with {@code diceType}.
      */
     private void rollDice(){
-        showWaitCursor();
-
         if(rollForPercentage.isSelected()){
             rollForPercentage();
         }else{
@@ -274,8 +307,6 @@ public class Randomiser {
         }
 
         diceRollDisplay.append("\n");
-
-        showDefaultCursor();
     }
 
     /**
@@ -288,7 +319,7 @@ public class Randomiser {
         final List<Integer> results = Random.getRandomIntegerList(0, 9, 2);
         final int sum = sum(results);
 
-        final String percentage = Format.integerListAsPercentage(results);
+        final String percentage = Format.integerListAsPercentage(results, true);
 
         displayDiceRoll(results, percentage, sum);
     }
@@ -346,7 +377,6 @@ public class Randomiser {
         diceRollDisplay.append("Total: " + sum + "\n");
     }
 
-
     /**
      * Displays the results of a dice roll, along with the sum of the dice, and the dice
      * concatenated into a percentage.
@@ -364,5 +394,51 @@ public class Randomiser {
      */
     private void clearDiceRollDisplay(){
         diceRollDisplay.setText("");
+    }
+
+    /**
+     * Handles the 'Randomise' button being clicked on the list randomiser tab.
+     *
+     * The user's input is converted to a list and shuffled.
+     * The shuffled list is then converted back to a string and displayed.
+     */
+    private void randomiseList(){
+        final String input = randomiseListInput.getText();
+        final List<String> shuffledList = getShuffledList(input);
+
+        displayRandomisedList(shuffledList);
+    }
+
+    /**
+     * Splits a string into a list and shuffles it.
+     *
+     * @param string The {@code String} to shuffle.
+     *
+     * @return {@code string} separated into a {@code List}.
+     */
+    private List<String> getShuffledList(String string){
+        final List<String> splitInput = Format.splitStringToList(string, MAX_LIST_ITEMS);
+
+        Collections.shuffle(splitInput);
+
+        return splitInput;
+    }
+
+    /**
+     * Displays a list on the list randomiser tab.
+     *
+     * @param list The {@code List} to display.
+     */
+    private void displayRandomisedList(List<String> list){
+        final String listAsString = Format.convertListToString(list, "\n");
+
+        randomiseListDisplay.setText(listAsString);
+    }
+
+    /**
+     * Clears the list randomiser display box.
+     */
+    private void clearRandomiseListDisplay(){
+        randomiseListDisplay.setText("");
     }
 }

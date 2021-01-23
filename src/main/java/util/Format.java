@@ -1,16 +1,18 @@
 package main.java.util;
 
-import java.text.NumberFormat;
+import main.java.app.Randomiser;
+import main.java.exception.TooManyItemsException;
+
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Provides various static methods to convert and format lists into strings.
+ * Provides various static methods to convert and format lists into strings and vice versa.
  */
 public class Format {
-    private static final Locale locale = Locale.getDefault();
-
     /**
-     * Converts a List to a string, with the elements separated by a given string.
+     * Converts a list to a string, with the elements separated by a given string.
      *
      * @param list The {@code List} to convert.
      * @param stringToSeparateBy The {@code String} to separate each element by.
@@ -22,11 +24,11 @@ public class Format {
      */
     public static String convertListToString(List list, String stringToSeparateBy){
         Objects.requireNonNull(list, "list cannot be null.");
-        Objects.requireNonNull(stringToSeparateBy, "stringToSeparateBy cannot be null");
+        Objects.requireNonNull(stringToSeparateBy, "stringToSeparateBy cannot be null.");
 
-        StringBuilder b = new StringBuilder();
+        final StringBuilder b = new StringBuilder();
 
-        Iterator it = list.iterator();
+        final Iterator it = list.iterator();
         while(it.hasNext()){
             Object o = it.next();
             b.append(o.toString());
@@ -40,7 +42,33 @@ public class Format {
     }
 
     /**
-     * Formats a list  of integers and returns it as a string.
+     * Splits a string into a list, with each new line being an element in the list.
+     *
+     * The maximum length of the list can be set, with an exception thrown if the
+     * string contains too many items.
+     *
+     * @param string The {@code String} to split.
+     * @param maxLength The maximum length of the list. Set this to 0 to remove the limit.
+     *
+     * @return {@code string} separated into a {@code List}.
+     *
+     * @throws TooManyItemsException if {@code string} contains more newline characters than {@code maxLength}.
+     */
+    public static List<String> splitStringToList(String string, int maxLength){
+        Objects.requireNonNull(string, "string cannot be null.");
+
+        long numOfLines = string.chars().filter(ch -> ch == '\n').count() + 1;
+        Stream<String> st = string.lines();
+
+        if(maxLength <= 0 || numOfLines <= maxLength){
+            return st.collect(Collectors.toList());
+        }else{
+            throw new TooManyItemsException();
+        }
+    }
+
+    /**
+     * Formats a list of integers and returns it as a string.
      *
      * The integers are formatted according to locale and converted to a single string,
      * with each integer on a new line.
@@ -58,11 +86,10 @@ public class Format {
     public static String integerListAsString(List<Integer> list, String stringToSeparateBy){
         Objects.requireNonNull(list, "List cannot be null.");
 
-        List<String> formattedList = new ArrayList<>();
-        NumberFormat formatter = NumberFormat.getInstance(locale);
+        final List<String> formattedList = new ArrayList<>();
 
         for(int n : list){
-            formattedList.add(formatter.format(n));
+            formattedList.add(Randomiser.NUMBER_FORMAT.format(n));
         }
 
         return convertListToString(formattedList, stringToSeparateBy);
@@ -75,13 +102,14 @@ public class Format {
      * A list containing two zeros becomes "100%".
      *
      * @param nums The {@code Integer} {@code List} to concatenate.
+     * @param doubleZeroIsOneHundred
      *
      * @return A {@code String} representing the list as a percentage.
      */
-    public static String integerListAsPercentage(List<Integer> nums){
+    public static String integerListAsPercentage(List<Integer> nums, boolean doubleZeroIsOneHundred){
         final String percentage = convertListToString(nums, "");
 
-        if(percentage.equals("00")){
+        if(doubleZeroIsOneHundred && percentage.equals("00")){
             return "1" + percentage + "%";
         }else{
             return percentage + "%";

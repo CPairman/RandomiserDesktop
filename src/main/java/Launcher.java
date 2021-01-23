@@ -14,7 +14,6 @@ import java.util.Enumeration;
  * Creates and launches the app.
  */
 public class Launcher {
-    private static final String TITLE = "Randomiser";
     private static final String FATAL_ERROR = "A fatal error occurred and the program could not be loaded.\n";
     private static final String ICON_CANNOT_BE_LOADED_ERROR = "Error: \"java/main/resources/icon.png\" could not be loaded.\n";
 
@@ -40,7 +39,7 @@ public class Launcher {
                 | IllegalAccessException e){
             JOptionPane.showMessageDialog(null,
                     FATAL_ERROR + e.getMessage(),
-                    TITLE, JOptionPane.ERROR_MESSAGE);
+                    Randomiser.TITLE, JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
     }
@@ -63,7 +62,7 @@ public class Launcher {
      * Creates and displays the main JFrame of the app.
      */
     private static void showApp(){
-        JFrame frame = new JFrame(TITLE);
+        JFrame frame = new JFrame(Randomiser.TITLE);
         frame.setContentPane(new Randomiser().getMainPanel());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -83,7 +82,7 @@ public class Launcher {
             frame.setIconImage(icon);
         }catch(IOException | IllegalArgumentException e){
             JOptionPane.showMessageDialog(null,
-                    ICON_CANNOT_BE_LOADED_ERROR, TITLE,
+                    ICON_CANNOT_BE_LOADED_ERROR, Randomiser.TITLE,
                     JOptionPane.ERROR_MESSAGE);
         }
     }
