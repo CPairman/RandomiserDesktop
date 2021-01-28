@@ -43,8 +43,8 @@ public class Format {
 
     /**
      * Splits a string into a list, with each new line being an element in the list.
-     * <br><br>
-     * The maximum length of the list can be set, with an exception thrown if the
+     *
+     * <p>The maximum length of the list can be set, with an exception thrown if the
      * string contains too many items.
      *
      * @param string The {@code String} to split.
@@ -69,11 +69,11 @@ public class Format {
 
     /**
      * Formats a list of integers and returns it as a string.
-     * <br><br>
-     * The integers are formatted according to locale and converted to a single string,
+     *
+     * <p>The integers are formatted according to locale and converted to a single string,
      * with each integer on a new line.
-     * <br><br>
-     * More specifically, this method converts the list to a list of formatted strings,
+     *
+     * <p>More specifically, this method converts the list to a list of formatted strings,
      * then calls the method {@code convertListToString} on the converted list.
      *
      * @param list The {@code List} to format.
@@ -97,8 +97,8 @@ public class Format {
 
     /**
      * Concatenates a list of integers to a percentage.
-     * <br><br>
-     * As an example, a list containing 5 and 6 becomes "56%".
+     *
+     * <p>As an example, a list containing 5 and 6 becomes "56%".
      * The option can be selected to consider a list containing two zeros as "100%".
      *
      * @param nums The {@code Integer} {@code List} to concatenate.

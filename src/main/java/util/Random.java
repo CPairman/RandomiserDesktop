@@ -12,8 +12,8 @@ import java.util.List;
 public class Random {
     /**
      * Generates a list of non-unique, pseudorandom integers within a given range.
-     * <br>
-     * This method may return duplicate numbers.
+     *
+     * <p>This method may return duplicate numbers.
      *
      * @param lowerBound The lower-bound number of the range (inclusive).
      * @param upperBound The upper-bound number of the range (inclusive).
@@ -35,8 +35,8 @@ public class Random {
 
     /**
      * Generates a list of unique, pseudorandom integers within a given range.
-     * <br>
-     * This method will not return duplicate numbers.
+     *
+     * <p>This method will not return duplicate numbers.
      *
      * @param lowerBound The lower-bound number of the range (inclusive).
      * @param upperBound The upper-bound number of the range (inclusive).
@@ -77,8 +77,8 @@ public class Random {
 
     /**
      * Selects a number of non-unique, random items from a given list.
-     * <br>
-     * This method may return duplicate items.
+     *
+     * <p>This method may return duplicate items.
      *
      * @param list The {@code List} to select items from.
      * @param quantity The number of items to select.
@@ -100,8 +100,8 @@ public class Random {
 
     /**
      * Selects a number of unique, random items from a given list.
-     * <br>
-     * This method will not return duplicate items.
+     *
+     * <p>This method will not return duplicate items.
      *
      * @param list The {@code List} to select items from.
      * @param quantity The number of items to select.

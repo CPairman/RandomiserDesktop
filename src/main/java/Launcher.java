@@ -17,8 +17,8 @@ public class Launcher {
     /**
      * Provides an error message for when a fatal error has occurred
      * and the app cannot open.
-     * <br>
-     * This may be used when setting the look and feel, if no valid
+     *
+     * <p>This may be used when setting the look and feel, if no valid
      * LAF can be set.
      */
     private static final String FATAL_ERROR = "A fatal error occurred and the program could not be loaded.\n";
@@ -35,10 +35,10 @@ public class Launcher {
 
     /**
      * Sets the look and feel of the app to the system default.
-     * <br>
-     * If there is no system LAF, default to the cross-platform LAF.
-     * <br>
-     * Failing this, an error message is displayed and the program will exit.
+     *
+     * <p>If there is no system LAF, default to the cross-platform LAF.
+     *
+     * <p>Failing this, an error message is displayed and the program will exit.
      */
     private static void setLookAndFeel(){
         try{
@@ -88,8 +88,8 @@ public class Launcher {
 
     /**
      * Sets the icon of the JFrame.
-     * <br>
-     * If the icon cannot be loaded for any reason, an error message is
+     *
+     * <p>If the icon cannot be loaded for any reason, an error message is
      * displayed to the user, however this will not stop the app from running.
      *
      * @param frame The main {@code JFrame} of the app.
