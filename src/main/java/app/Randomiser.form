@@ -554,7 +554,6 @@
                         <constraints/>
                         <properties>
                           <background color="-1"/>
-                          <requestFocusEnabled value="true"/>
                           <rows value="0"/>
                         </properties>
                       </component>

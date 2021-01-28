@@ -96,7 +96,7 @@ public class Launcher {
      */
     private static void setIcon(JFrame frame){
         try{
-            BufferedImage icon = ImageIO.read(Launcher.class.getResource("../resources/icon.png"));
+            BufferedImage icon = ImageIO.read(ClassLoader.getSystemResource("icon.png"));
             frame.setIconImage(icon);
         }catch(IOException | IllegalArgumentException e){
             JOptionPane.showMessageDialog(null,
