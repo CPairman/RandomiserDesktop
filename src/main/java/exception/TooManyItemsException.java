@@ -10,6 +10,9 @@ import javax.swing.JOptionPane;
  * or random item tabs.
  */
 public class TooManyItemsException extends RuntimeException{
+    /**
+     * Provides the error message to display.
+     */
     private static final String MESSAGE = "Number of items may not exceed "
             + Randomiser.NUMBER_FORMAT.format(Randomiser.MAX_LIST_ITEMS)
             + ".";

@@ -6,11 +6,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides static methods for generating lists of unique and non-unique integers.
+ * Provides static methods for generating lists of pseudorandom integers,
+ * and selecting random items from a list.
  */
 public class Random {
     /**
      * Generates a list of non-unique, pseudorandom integers within a given range.
+     * <br>
      * This method may return duplicate numbers.
      *
      * @param lowerBound The lower-bound number of the range (inclusive).
@@ -33,6 +35,7 @@ public class Random {
 
     /**
      * Generates a list of unique, pseudorandom integers within a given range.
+     * <br>
      * This method will not return duplicate numbers.
      *
      * @param lowerBound The lower-bound number of the range (inclusive).
@@ -70,5 +73,51 @@ public class Random {
         }
 
         return nums;
+    }
+
+    /**
+     * Selects a number of non-unique, random items from a given list.
+     * <br>
+     * This method may return duplicate items.
+     *
+     * @param list The {@code List} to select items from.
+     * @param quantity The number of items to select.
+     *
+     * @return A {@code List} containing randomly selected, non-unique items from {@code list}.
+     */
+    public static List<String> getRandItemsFromList(List<String> list, int quantity){
+        final List<String> selectedItems = new ArrayList<>();
+
+        for(int i = 0; i < quantity; i++){
+            Collections.shuffle(list);
+
+            String item = list.get(0);
+            selectedItems.add(item);
+        }
+
+        return selectedItems;
+    }
+
+    /**
+     * Selects a number of unique, random items from a given list.
+     * <br>
+     * This method will not return duplicate items.
+     *
+     * @param list The {@code List} to select items from.
+     * @param quantity The number of items to select.
+     *
+     * @return A {@code List} containing randomly selected, unique items from {@code list}.
+     */
+    public static List<String> getUniqueRandItemsFromList(List<String> list, int quantity){
+        Collections.shuffle(list);
+
+        final List<String> selectedItems = new ArrayList<>();
+
+        for(int i = 0; i < quantity; i++){
+            String item = list.get(i);
+            selectedItems.add(item);
+        }
+
+        return selectedItems;
     }
 }
