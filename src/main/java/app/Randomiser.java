@@ -143,7 +143,7 @@ public class Randomiser {
      * Components of the item picker tab.
      */
     private JSpinner randItemQuantity;
-    private JCheckBox randItemAllowRepeats;
+    private JCheckBox randItemAllowDuplicates;
     private JCheckBox randItemKeepPrevious;
     private JLabel randItemInstruction;
     private JTextArea randItemInput;
@@ -577,7 +577,7 @@ public class Randomiser {
         final int quantity;
         final List<String> selectedItems;
 
-        if(randItemAllowRepeats.isSelected()){
+        if(randItemAllowDuplicates.isSelected()){
             quantity = (int) randItemQuantity.getValue();
             selectedItems = Random.getRandItemsFromList(inputList, quantity);
         }else{
